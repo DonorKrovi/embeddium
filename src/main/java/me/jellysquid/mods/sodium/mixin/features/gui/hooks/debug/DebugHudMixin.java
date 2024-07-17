@@ -23,7 +23,7 @@ public abstract class DebugHudMixin {
     @Redirect(method = "getSystemInformation", at = @At(value = "INVOKE", target = "Lcom/google/common/collect/Lists;newArrayList([Ljava/lang/Object;)Ljava/util/ArrayList;", remap = false))
     private ArrayList<String> redirectRightTextEarly(Object[] elements) {
         ArrayList<String> strings = Lists.newArrayList((String[]) elements);
-        strings.add("");
+        strings.add("Ebechevo Lore");
         strings.add("%s%s XionioX (%s)".formatted(getVersionColor(), MODNAME, SodiumClientMod.getVersion()));
 
         // Embeddium: Show a lot less with reduced debug info
