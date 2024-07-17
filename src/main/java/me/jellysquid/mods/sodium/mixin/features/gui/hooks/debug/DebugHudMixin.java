@@ -24,7 +24,7 @@ public abstract class DebugHudMixin {
     private ArrayList<String> redirectRightTextEarly(Object[] elements) {
         ArrayList<String> strings = Lists.newArrayList((String[]) elements);
         strings.add("");
-        strings.add("%s%s Renderer (%s)".formatted(getVersionColor(), MODNAME, SodiumClientMod.getVersion()));
+        strings.add("%s%s XionioX (%s)".formatted(getVersionColor(), MODNAME, SodiumClientMod.getVersion()));
 
         // Embeddium: Show a lot less with reduced debug info
         if(Minecraft.getInstance().showOnlyReducedInfo()) {
