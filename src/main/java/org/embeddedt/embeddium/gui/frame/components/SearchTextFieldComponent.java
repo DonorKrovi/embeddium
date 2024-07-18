@@ -43,7 +43,7 @@ public class SearchTextFieldComponent extends AbstractWidget {
             return;
         }
         if (this.model.text.isEmpty()) {
-            this.drawString(context, Component.translatable("embeddium.search_bar_empty"), this.dim.x() + 6, this.dim.y() + 6, 0xFFAAAAAA);
+            this.drawString(context, Component.translatable("cobblemon.search_bar_empty_xioniox"), this.dim.x() + 6, this.dim.y() + 6, 0xFFAAAAAA);
         }
 
         this.drawRect(context, this.dim.x(), this.dim.y(), this.dim.getLimitX(), this.dim.getLimitY(), this.isFocused() ? 0xE0000000 : 0x90000000);
