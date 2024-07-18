@@ -187,9 +187,6 @@ public class EmbeddiumVideoOptionsScreen extends Screen {
         Component donationText = Component.translatable("sodium.options.buttons.donate");
         int donationTextWidth = this.minecraft.font.width(donationText);
 
-        Dim2i donateButtonDim = new Dim2i(tabFrameDim.getLimitX() - 32 - donationTextWidth, tabFrameDim.y() - 26, 10 + donationTextWidth, 20);
-        Dim2i hideDonateButtonDim = new Dim2i(tabFrameDim.getLimitX() - 20, tabFrameDim.y() - 26, 20, 20);
-
         int logoSizeOnScreen = 20;
         this.logoDim = new Dim2i(tabFrameDim.x(), tabFrameDim.getLimitY() + 25 - logoSizeOnScreen, logoSizeOnScreen, logoSizeOnScreen);
 
