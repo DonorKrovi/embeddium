@@ -73,7 +73,7 @@ public class EmbeddiumVideoOptionsScreen extends Screen {
     private boolean firstInit = true;
 
     public EmbeddiumVideoOptionsScreen(Screen prev, List<OptionPage> pages) {
-        super(Component.literal("Embeddium Options"));
+        super(Component.literal("Cobble Options"));
         this.prevScreen = prev;
         this.pages.addAll(pages);
         this.searchTextModel = new SearchTextFieldModel(this.pages, this);
