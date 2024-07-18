@@ -61,6 +61,7 @@ public class EmbeddiumVideoOptionsScreen extends Screen {
     private final List<OptionPage> pages = new ArrayList<>();
     private AbstractFrame frame;
     private FlatButtonWidget applyButton, closeButton, undoButton;
+    private FlatButtonWidget donateButton, hideDonateButton;
 
     private Dim2i logoDim;
 
@@ -79,9 +80,66 @@ public class EmbeddiumVideoOptionsScreen extends Screen {
         registerTextures();
     }
 
+    private void checkPromptTimers() {
+        // Don't show the donation prompt in situations where we know it causes problems.
+        if (PlatformUtil.isDevelopmentEnvironment()) {
+            return;
+        }
+
+        var options = SodiumClientMod.options();
+
+        // If the user has disabled the nags forcefully (by config), or has already seen the prompt, don't show it again.
+        if (options.notifications.forceDisableDonationPrompts || options.notifications.hasSeenDonationPrompt) {
+            return;
+        }
+
+        HashedFingerprint fingerprint = null;
+
+        try {
+            fingerprint = HashedFingerprint.loadFromDisk();
+        } catch (Throwable t) {
+            SodiumClientMod.logger()
+                    .error("Failed to read the fingerprint from disk", t);
+        }
+
+        // If the fingerprint doesn't exist, or failed to be loaded, abort.
+        if (fingerprint == null) {
+            return;
+        }
+
+        // The fingerprint records the installation time. If it's been a while since installation, show the user
+        // a prompt asking for them to consider donating.
+        var now = Instant.now();
+        var threshold = Instant.ofEpochSecond(fingerprint.timestamp())
+                .plus(3, ChronoUnit.DAYS);
+
+        if (now.isAfter(threshold)) {
+            this.openDonationPrompt();
+
+            options.notifications.hasSeenDonationPrompt = true;
+
+            try {
+                SodiumGameOptions.writeToDisk(options);
+            } catch (IOException e) {
+                SodiumClientMod.logger()
+                        .error("Failed to update config file", e);
+            }
+        }
+    }
+
+    private void openDonationPrompt() {
+        //noinspection removal
+        var prompt = new PromptScreen(this, SodiumOptionsGUI.DONATION_PROMPT_MESSAGE, 320, 190,
+                new PromptScreen.Action(Component.literal("Донат"), this::openDonationPage));
+
+        this.minecraft.setScreen(prompt);
+    }
+
+
     private void registerTextures() {
         Minecraft.getInstance().textureManager.register(LOGO_LOCATION, new SimpleTexture(LOGO_LOCATION));
     }
+
 
     public void rebuildUI() {
         // Remember if the search bar was previously focused since we'll lose that information after recreating
@@ -103,6 +161,7 @@ public class EmbeddiumVideoOptionsScreen extends Screen {
         if(firstInit) {
             this.setFocused(this.searchTextField);
             firstInit = false;
+            this.checkPromptTimers();
         }
     }
 
@@ -138,8 +197,18 @@ public class EmbeddiumVideoOptionsScreen extends Screen {
         this.applyButton = new FlatButtonWidget(applyButtonDim, Component.translatable("sodium.options.buttons.apply"), this::applyChanges);
         this.closeButton = new FlatButtonWidget(closeButtonDim, Component.translatable("gui.done"), this::onClose);
 
+        this.donateButton = new FlatButtonWidget(donateButtonDim, donationText, this::openDonationPage);
+        this.hideDonateButton = new FlatButtonWidget(hideDonateButtonDim, Component.literal("x"), this::hideDonationButton);
+
         if (SodiumClientMod.options().notifications.hasClearedDonationButton) {
             this.setDonationButtonVisibility(false);
+        }
+
+        Dim2i searchTextFieldDim;
+        if (SodiumClientMod.options().notifications.hasClearedDonationButton) {
+            searchTextFieldDim = new Dim2i(tabFrameDim.x(), tabFrameDim.y() - 26, tabFrameDim.width(), 20);
+        } else {
+            searchTextFieldDim = new Dim2i(tabFrameDim.x(), tabFrameDim.y() - 26, tabFrameDim.width() - (tabFrameDim.getLimitX() - donateButtonDim.x()) - 2, 20);
         }
 
         basicFrameBuilder = this.parentBasicFrameBuilder(basicFrameDim, tabFrameDim);
@@ -209,6 +278,8 @@ public class EmbeddiumVideoOptionsScreen extends Screen {
         return BasicFrame.createBuilder()
                 .setDimension(parentBasicFrameDim)
                 .shouldRenderOutline(false)
+                .addChild(dim -> this.donateButton)
+                .addChild(dim -> this.hideDonateButton)
                 .addChild(parentDim -> this.createTabFrame(tabFrameDim))
                 .addChild(dim -> this.undoButton)
                 .addChild(dim -> this.applyButton)
@@ -257,6 +328,32 @@ public class EmbeddiumVideoOptionsScreen extends Screen {
         this.closeButton.setEnabled(!hasChanges);
 
         this.hasPendingChanges = hasChanges;
+    }
+
+    private void setDonationButtonVisibility(boolean value) {
+        this.donateButton.setVisible(value);
+        this.hideDonateButton.setVisible(value);
+    }
+
+    private void hideDonationButton() {
+        SodiumGameOptions options = SodiumClientMod.options();
+        options.notifications.hasClearedDonationButton = true;
+
+        try {
+            SodiumGameOptions.writeToDisk(options);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to save configuration", e);
+        }
+
+        this.setDonationButtonVisibility(false);
+
+
+        this.rebuildUI();
+    }
+
+    private void openDonationPage() {
+        Util.getPlatform()
+                .openUri("https://soulder.space/store");
     }
 
     private Stream<Option<?>> getAllOptions() {
