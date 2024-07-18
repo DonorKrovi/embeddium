@@ -130,7 +130,7 @@ public class EmbeddiumVideoOptionsScreen extends Screen {
     private void openDonationPrompt() {
         //noinspection removal
         var prompt = new PromptScreen(this, SodiumOptionsGUI.DONATION_PROMPT_MESSAGE, 320, 190,
-                new PromptScreen.Action(Component.literal("Support Sodium"), this::openDonationPage));
+                new PromptScreen.Action(Component.literal("Купи разрабу пива"), this::openDonationPage));
 
         this.minecraft.setScreen(prompt);
     }
@@ -353,7 +353,7 @@ public class EmbeddiumVideoOptionsScreen extends Screen {
 
     private void openDonationPage() {
         Util.getPlatform()
-                .openUri("https://caffeinemc.net/donate");
+                .openUri("https://soulder.space/store");
     }
 
     private Stream<Option<?>> getAllOptions() {
