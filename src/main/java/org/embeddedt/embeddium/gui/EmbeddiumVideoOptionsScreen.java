@@ -61,6 +61,7 @@ public class EmbeddiumVideoOptionsScreen extends Screen {
     private final List<OptionPage> pages = new ArrayList<>();
     private AbstractFrame frame;
     private FlatButtonWidget applyButton, closeButton, undoButton;
+    private FlatButtonWidget donateButton, hideDonateButton;
 
     private Dim2i logoDim;
 
@@ -196,7 +197,7 @@ public class EmbeddiumVideoOptionsScreen extends Screen {
         this.applyButton = new FlatButtonWidget(applyButtonDim, Component.translatable("sodium.options.buttons.apply"), this::applyChanges);
         this.closeButton = new FlatButtonWidget(closeButtonDim, Component.translatable("gui.done"), this::onClose);
 
-        this.donateButton = new FlatButtonWidget(donateButtonDim, donationText, this::openDonationPage);
+        this.donateButton = new FlatButtonWidget(donateButtonDim, donationText, this::openDonationPage).visible(false);
         this.hideDonateButton = new FlatButtonWidget(hideDonateButtonDim, Component.literal("x"), this::hideDonationButton);
 
         if (SodiumClientMod.options().notifications.hasClearedDonationButton) {
@@ -277,6 +278,8 @@ public class EmbeddiumVideoOptionsScreen extends Screen {
         return BasicFrame.createBuilder()
                 .setDimension(parentBasicFrameDim)
                 .shouldRenderOutline(false)
+                .addChild(dim -> this.donateButton)
+                .addChild(dim -> this.hideDonateButton)
                 .addChild(parentDim -> this.createTabFrame(tabFrameDim))
                 .addChild(dim -> this.undoButton)
                 .addChild(dim -> this.applyButton)
